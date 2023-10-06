@@ -45,7 +45,6 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
 {
     // Output welcome message
     cout << endl << "ORB-SLAM3 " << endl << endl;
-
     cout << "Input sensor was set to: ";
 
     if(mSensor==MONOCULAR)
@@ -69,13 +68,11 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
        exit(-1);
     }
 
-
     cv::FileNode node = fsSettings["File.version"];
     if(!node.empty() && node.isString() && node.string() == "1.0"){
         settings_ = new Settings(strSettingsFile,mSensor);
         mStrLoadAtlasFromFile = settings_->atlasLoadFile();
         mStrSaveAtlasToFile = settings_->atlasSaveFile();
-
         //cout << (*settings_) << endl;
     }
     else{
@@ -93,12 +90,15 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
         }
     }
 
+    //cout << "================" << endl;
+    //cout << "mStrLoadAtlasFromFile:" << mStrLoadAtlasFromFile << endl << "mStrSaveAtlasToFile:" << mStrSaveAtlasToFile << endl;
+    //cout << "================" << endl;
+
     node = fsSettings["loopClosing"];
 
     bool activeLC = true; // 默认开启回环检测
     if(!node.empty())
     {
-
         activeLC = static_cast<int>(fsSettings["loopClosing"]) != 0;
     }
 

@@ -46,9 +46,10 @@ int main(int argc, char **argv)
     if(argc != 4){
         string path_vocabulary("/SLAM/ORB_SLAM3/Vocabulary/ORBvoc.txt");
         path_to_vocabulary=(getenv("HOME") + path_vocabulary);
-        string path_settings("/SLAM/ORB_SLAM3/Examples/Stereo/KITTI00-02.yaml");
+        string path_settings("/SLAM/ORB_SLAM3/Examples/Stereo/Real.yaml");
         path_to_settings=(getenv("HOME") + path_settings);
-        path_to_sequence="/mnt/nas/dataset/kitti/00/";
+        //path_to_sequence="/mnt/nas/dataset/real/理想ONE_公司_曹安公路_学校_0422/2023-04-22-07-24-32/";
+        path_to_sequence="/mnt/nas/dataset/real/理想ONE_学校_0426/2023-04-22-08-21-27/";
     }
     else{
         path_to_vocabulary=argv[1];
@@ -170,7 +171,7 @@ int main(int argc, char **argv)
     cout << "mean tracking time: " << totaltime/nImages << endl;
 
     // Save camera trajectory
-    SLAM.SaveTrajectoryKITTI("CameraTrajectory.txt");
+    SLAM.SaveTrajectoryKITTI("realtest.txt");
 
     return 0;
 }

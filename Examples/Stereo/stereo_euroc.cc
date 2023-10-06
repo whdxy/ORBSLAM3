@@ -32,23 +32,43 @@ void LoadImages(const string &strPathLeft, const string &strPathRight, const str
                 vector<string> &vstrImageLeft, vector<string> &vstrImageRight, vector<double> &vTimeStamps);
 
 int main(int argc, char **argv)
-{  
+{
+    /*
     if(argc < 5)
     {
         cerr << endl << "Usage: ./stereo_euroc path_to_vocabulary path_to_settings path_to_sequence_folder_1 path_to_times_file_1 (path_to_image_folder_2 path_to_times_file_2 ... path_to_image_folder_N path_to_times_file_N) (trajectory_file_name)" << endl;
 
         return 1;
     }
+     */
 
-    const int num_seq = (argc-3)/2;
-    cout << "num_seq = " << num_seq << endl;
-    bool bFileName= (((argc-3) % 2) == 1);
-    string file_name;
-    if (bFileName)
-    {
-        file_name = string(argv[argc-1]);
-        cout << "file name: " << file_name << endl;
+    string path_to_vocabulary, path_to_settings, path_to_sequence, path_to_TimeStamps;
+    if(argc < 4){
+        string path_vocabulary("/SLAM/ORB_SLAM3/Vocabulary/ORBvoc.txt");
+        path_to_vocabulary=(getenv("HOME") + path_vocabulary);
+        string path_settings("/SLAM/ORB_SLAM3/Examples/Stereo/EuRoC.yaml");
+        path_to_settings=(getenv("HOME") + path_settings);
+        path_to_sequence="/media/whd/3032B1CE3015279F/EuRoc/MH_01_easy/";
+        path_to_TimeStamps="/home/whd/SLAM/ORB_SLAM3/Examples/Stereo/EuRoC_TimeStamps/MH01.txt";
+
     }
+    else{
+        path_to_vocabulary=argv[1];
+        path_to_settings=argv[2];
+        path_to_sequence=argv[3];
+    }
+
+    //const int num_seq = (argc-3)/2;
+    const int num_seq = 1;
+    cout << "num_seq = " << num_seq << endl;
+    bool bFileName= false;
+    //bool bFileName= (((argc-3) % 2) == 1);
+    //string file_name;
+    //if (bFileName)
+    //{
+    //    file_name = string(argv[argc-1]);
+    //    cout << "file name: " << file_name << endl;
+    //}
 
     // Load all sequences:
     int seq;
@@ -67,8 +87,10 @@ int main(int argc, char **argv)
     {
         cout << "Loading images for sequence " << seq << "...";
 
-        string pathSeq(argv[(2*seq) + 3]);
-        string pathTimeStamps(argv[(2*seq) + 4]);
+        //string pathSeq(argv[(2*seq) + 3]);
+        //string pathTimeStamps(argv[(2*seq) + 4]);
+        string pathSeq=path_to_sequence;
+        string pathTimeStamps=path_to_TimeStamps;
 
         string pathCam0 = pathSeq + "/mav0/cam0/data";
         string pathCam1 = pathSeq + "/mav0/cam1/data";
@@ -88,12 +110,12 @@ int main(int argc, char **argv)
     cout.precision(17);
 
     // Create SLAM system. It initializes all system threads and gets ready to process frames.
-    ORB_SLAM3::System SLAM(argv[1],argv[2],ORB_SLAM3::System::STEREO, true);
+    //ORB_SLAM3::System SLAM(argv[1],argv[2],ORB_SLAM3::System::STEREO, true);
+    ORB_SLAM3::System SLAM(path_to_vocabulary,path_to_settings,ORB_SLAM3::System::STEREO, true);
 
     cv::Mat imLeft, imRight;
     for (seq = 0; seq<num_seq; seq++)
     {
-
         // Seq loop
         double t_resize = 0;
         double t_rect = 0;
@@ -103,8 +125,12 @@ int main(int argc, char **argv)
         for(int ni=0; ni<nImages[seq]; ni++, proccIm++)
         {
             // Read left and right images from file
+            //cout << vstrImageLeft[seq][ni] << endl;
+            //cout << vstrImageRight[seq][ni] << endl;
             imLeft = cv::imread(vstrImageLeft[seq][ni],cv::IMREAD_UNCHANGED); //,cv::IMREAD_UNCHANGED);
             imRight = cv::imread(vstrImageRight[seq][ni],cv::IMREAD_UNCHANGED); //,cv::IMREAD_UNCHANGED);
+            //cout << "imLeft:" << imLeft.cols << " " << imLeft.rows << endl;
+            //cout << "imRight:" << imRight.cols << " " << imRight.rows << endl;
 
             if(imLeft.empty())
             {
@@ -122,20 +148,20 @@ int main(int argc, char **argv)
 
             double tframe = vTimestampsCam[seq][ni];
 
-    #ifdef COMPILEDWITHC11
+//    #ifdef COMPILEDWITHC11
             std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
-    #else
-            std::chrono::monotonic_clock::time_point t1 = std::chrono::monotonic_clock::now();
-    #endif
+//    #else
+//            std::chrono::monotonic_clock::time_point t1 = std::chrono::monotonic_clock::now();
+//    #endif
 
             // Pass the images to the SLAM system
             SLAM.TrackStereo(imLeft,imRight,tframe, vector<ORB_SLAM3::IMU::Point>(), vstrImageLeft[seq][ni]);
 
-    #ifdef COMPILEDWITHC11
+//    #ifdef COMPILEDWITHC11
             std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
-    #else
-            std::chrono::monotonic_clock::time_point t2 = std::chrono::monotonic_clock::now();
-    #endif
+//    #else
+//            std::chrono::monotonic_clock::time_point t2 = std::chrono::monotonic_clock::now();
+//    #endif
 
 #ifdef REGISTER_TIMES
             t_track = t_resize + t_rect + std::chrono::duration_cast<std::chrono::duration<double,std::milli> >(t2 - t1).count();

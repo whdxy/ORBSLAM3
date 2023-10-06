@@ -19,44 +19,50 @@ File.version: "1.0"
 Camera.type: "PinHole"
 
 # Camera calibration and distortion parameters (OpenCV) 
-Camera1.fx: 458.654
-Camera1.fy: 457.296
-Camera1.cx: 367.215
-Camera1.cy: 248.375
+Camera1.fx: 3278.04
+Camera1.fy: 3278.53
+Camera1.cx: 628.622
+Camera1.cy: 382.885
 
-Camera1.k1: -0.28340811
-Camera1.k2: 0.07395907
-Camera1.p1: 0.00019359
-Camera1.p2: 1.76187114e-05
+Camera1.k1: -0.0428039
+Camera1.k2: -0.609791
+Camera1.p1: 0.00148487
+Camera1.p2: 0.000794936
 
-Camera2.fx: 457.587
-Camera2.fy: 456.134
-Camera2.cx: 379.999
-Camera2.cy: 255.238
+Camera2.fx: 3265.66
+Camera2.fy: 3265.28
+Camera2.cx: 660.578
+Camera2.cy: 363.321
 
-Camera2.k1: -0.28368365
-Camera2.k2: 0.07451284
-Camera2.p1: -0.00010473
-Camera2.p2: -3.55590700e-05
+Camera2.k1: -0.0428773
+Camera2.k2: -0.220436
+Camera2.p1: 0.000445321
+Camera2.p2: 0.00190321
 
-Camera.width: 752
-Camera.height: 480
+Camera.width: 1280
+Camera.height: 720
 
 # Camera frames per second 
-Camera.fps: 20
+Camera.fps: 30
 
 # Color order of the images (0: BGR, 1: RGB. It is ignored if images are grayscale)
 Camera.RGB: 1
 
-Stereo.ThDepth: 60.0
+#基线倍数
+Stereo.ThDepth: 500.0
 Stereo.T_c1_c2: !!opencv-matrix
   rows: 4
   cols: 4
   dt: f
-  data: [0.999997256477797,-0.002317135723275,-0.000343393120620,0.110074137800478,
-         0.002312067192432,0.999898048507103,-0.014090668452683,-0.000156612054392,
-         0.000376008102320,0.014089835846691,0.999900662638081,0.000889382785432,
-         0,0,0,1.000000000000000]
+  data: [0.9998135,0.010020211,0.016509106,0.2011085,
+         -0.0099293794,0.99993515,-0.0055747828,-0.0019972548,
+         -0.016563898,0.0054098177,0.99984819,-0.0033317616,
+         0,0,0,1.000000]
+
+#  data: [0.999814,-0.00992939,-0.0165639,-0.201146,
+#         0.0100202,0.999935,0.00540982,0.000000,
+#         0.0165091,-0.00557478,0.999848,0.000000,
+#         0,0,0,1.000000]         
 
 #--------------------------------------------------------------------------------------------
 # ORB Parameters

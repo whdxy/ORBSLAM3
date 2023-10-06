@@ -99,6 +99,8 @@ Tracking::Tracking(System *pSys, ORBVocabulary* pVoc, FrameDrawer *pFrameDrawer,
     mnNumDataset = 0;
 
     vector<GeometricCamera*> vpCams = mpAtlas->GetAllCameras();
+
+    /// 这里应该是相机的种类？？？
     std::cout << "There are " << vpCams.size() << " cameras in the atlas" << std::endl;
     for(GeometricCamera* pCam : vpCams)
     {
@@ -532,10 +534,12 @@ Tracking::~Tracking()
 
 }
 
+/// 新参数加载
 void Tracking::newParameterLoader(Settings *settings) {
     mpCamera = settings->camera1();
     mpCamera = mpAtlas->AddCamera(mpCamera);
 
+    // 如果需要去畸变
     if(settings->needToUndistort()){
         mDistCoef = settings->camera1DistortionCoef();
     }
@@ -571,7 +575,7 @@ void Tracking::newParameterLoader(Settings *settings) {
 
     if(mSensor==System::STEREO || mSensor==System::RGBD || mSensor==System::IMU_STEREO || mSensor==System::IMU_RGBD ){
         mbf = settings->bf();
-        mThDepth = settings->b() * settings->thDepth();
+        mThDepth = settings->b() * settings->thDepth(); /// 基线倍数
     }
 
     if(mSensor==System::RGBD || mSensor==System::IMU_RGBD){
@@ -1488,7 +1492,7 @@ Sophus::SE3f Tracking::GrabImageStereo(const cv::Mat &imRectLeft, const cv::Mat 
     }
 
     //cout << "Incoming frame creation" << endl;
-
+    //cout << "mpCamera2:" << mpCamera2 << endl;
     if (mSensor == System::STEREO && !mpCamera2)
         mCurrentFrame = Frame(mImGray,imGrayRight,timestamp,mpORBextractorLeft,mpORBextractorRight,mpORBVocabulary,mK,mDistCoef,mbf,mThDepth,mpCamera);
     else if(mSensor == System::STEREO && mpCamera2)

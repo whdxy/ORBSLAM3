@@ -32,6 +32,7 @@ using namespace std;
 
 namespace ORB_SLAM3 {
 
+    /// 下面三个是模板参数，根据读取类型是float，int，string而变化
     template<>
     float Settings::readParameter<float>(cv::FileStorage& fSettings, const std::string& name, bool& found, const bool required){
         cv::FileNode node = fSettings[name];
@@ -127,6 +128,7 @@ namespace ORB_SLAM3 {
         }
     }
 
+    /// 读取参数
     Settings::Settings(const std::string &configFile, const int& sensor):
     bNeedToUndistort_(false), bNeedToRectify_(false), bNeedToResize1_(false), bNeedToResize2_(false) {
         sensor_ = sensor;
@@ -177,6 +179,7 @@ namespace ORB_SLAM3 {
         cout << "\t-Loaded misc parameters" << endl;
 
         if(bNeedToRectify_){
+            /// 计算双目图像修正
             precomputeRectificationMaps();
             cout << "\t-Computed rectification maps" << endl;
         }
@@ -356,6 +359,7 @@ namespace ORB_SLAM3 {
 
     }
 
+    /// 读取图像参数
     void Settings::readImageInfo(cv::FileStorage &fSettings) {
         bool found;
         //Read original and desired image dimensions
@@ -488,16 +492,21 @@ namespace ORB_SLAM3 {
         thFarPoints_ = readParameter<float>(fSettings,"System.thFarPoints",found,false);
     }
 
-    // 双目图像修正
+    /// 双目图像修正
     void Settings::precomputeRectificationMaps() {
         //Precompute rectification maps, new calibrations, ...
+
+        // step1：获取两个相机的内参K1，K2
         cv::Mat K1 = static_cast<Pinhole*>(calibration1_)->toK();
         K1.convertTo(K1,CV_64F);
         cv::Mat K2 = static_cast<Pinhole*>(calibration2_)->toK();
         K2.convertTo(K2,CV_64F);
 
+        // step2：获取两个相机的外参Rl->r, tl->r
         cv::Mat cvTlr;
         cv::eigen2cv(Tlr_.inverse().matrix3x4(),cvTlr);
+        //cout << "Tlr:" << endl << cvTlr << endl;
+        //cv::eigen2cv(Tlr_.matrix3x4(),cvTlr);
         cv::Mat R12 = cvTlr.rowRange(0,3).colRange(0,3);
         R12.convertTo(R12,CV_64F);
         cv::Mat t12 = cvTlr.rowRange(0,3).col(3);
@@ -506,10 +515,12 @@ namespace ORB_SLAM3 {
         cv::Mat R_r1_u1, R_r2_u2;
         cv::Mat P1, P2, Q;
 
+        // step3：计算旋转矩阵和投影矩阵
         cv::stereoRectify(K1,camera1DistortionCoef(),K2,camera2DistortionCoef(),newImSize_,
                           R12, t12,
                           R_r1_u1,R_r2_u2,P1,P2,Q,
                           cv::CALIB_ZERO_DISPARITY,-1,newImSize_);
+
         cv::initUndistortRectifyMap(K1, camera1DistortionCoef(), R_r1_u1, P1.rowRange(0, 3).colRange(0, 3),
                                     newImSize_, CV_32F, M1l_, M2l_);
         cv::initUndistortRectifyMap(K2, camera2DistortionCoef(), R_r2_u2, P2.rowRange(0, 3).colRange(0, 3),
@@ -517,6 +528,14 @@ namespace ORB_SLAM3 {
 
         //cout << "R_r1_u1: \n" << R_r1_u1 << endl;
         //cout << "R_r2_u2: \n" << R_r2_u2 << endl;
+        /*
+        cout << endl << "================" << endl;
+        cout << "R1:" << endl << R_r1_u1 << endl;
+        cout << "R2:" << endl << R_r2_u2 << endl << endl;
+        cout << "P1:" << endl << P1 << endl;
+        cout << "P2:" << endl << P2 << endl;
+        cout << "================" << endl;
+         */
 
         //Update calibration
         calibration1_->setParameter(P1.at<double>(0,0), 0);
